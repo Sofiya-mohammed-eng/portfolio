@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sofiya-hassen.dev/sitemap.xml

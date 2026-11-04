@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: 'Bricolage Grotesque', sans-serif;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-ivory: #FAF6F0;
+  --color-beige: #EBE1D2;
+  --color-sand: #D8C9B3;
+  --color-lilac: #C9B8EA;
+  --color-purple: #6B4EAE;
+  --color-plum: #2E2142;
+  --color-muted: #5E5470;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #FAF6F0;
+  color: #2E2142;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+@keyframes morph {
+  0% {
+    border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%;
+  }
+  50% {
+    border-radius: 45% 55% 60% 40% / 55% 45% 50% 50%;
+  }
+  100% {
+    border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%;
+  }
+}
+
+.animate-morph {
+  animation: morph 10s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-morph {
+    animation: none;
+  }
+}
