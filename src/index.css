@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-heading: 'Bricolage Grotesque', sans-serif;
   --font-sans: 'DM Sans', sans-serif;
@@ -12,12 +14,41 @@
   --color-purple: #6B4EAE;
   --color-plum: #2E2142;
   --color-muted: #5E5470;
+
+  --color-dark-bg: #1B1326;
+  --color-dark-surface: #2A1F3D;
+  --color-dark-border: #3D2F57;
+  --color-dark-text: #EBE1D2;
+  --color-dark-muted: #BDB0CC;
+  --color-dark-accent: #A78BFA;
+}
+
+:root {
+  --bg-primary: #FAF6F0;
+  --bg-surface: #EBE1D2;
+  --border-subtle: #D8C9B3;
+  --text-primary: #2E2142;
+  --text-secondary: #5E5470;
+  --accent-purple: #6B4EAE;
+  --accent-lilac: #C9B8EA;
+  --photo-ring: #FFFFFF;
+}
+
+.dark {
+  --bg-primary: #1B1326;
+  --bg-surface: #2A1F3D;
+  --border-subtle: #3D2F57;
+  --text-primary: #EBE1D2;
+  --text-secondary: #BDB0CC;
+  --accent-purple: #A78BFA;
+  --accent-lilac: #C9B8EA;
+  --photo-ring: #3D2F57;
 }
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background-color: #FAF6F0;
-  color: #2E2142;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   overflow-x: hidden;
 }
 
@@ -25,24 +56,8 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Bricolage Grotesque', sans-serif;
 }
 
-@keyframes morph {
-  0% {
-    border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%;
-  }
-  50% {
-    border-radius: 45% 55% 60% 40% / 55% 45% 50% 50%;
-  }
-  100% {
-    border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%;
-  }
-}
-
-.animate-morph {
-  animation: morph 10s ease-in-out infinite alternate;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-morph {
-    animation: none;
-  }
+/* Perfect circular photo ring & soft ambient purple glow */
+.profile-photo-circle {
+  border-radius: 9999px;
+  aspect-ratio: 1 / 1;
 }

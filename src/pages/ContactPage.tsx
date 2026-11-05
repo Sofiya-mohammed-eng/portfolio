@@ -32,15 +32,15 @@ export const ContactPage: React.FC = () => {
     <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
       {/* Header */}
       <div className="space-y-3 mb-12">
-        <div className="flex items-center gap-2 text-xs font-mono text-[#6B4EAE] uppercase tracking-wider">
+        <div className="flex items-center gap-2 text-xs font-mono text-[#6B4EAE] dark:text-[#A78BFA] uppercase tracking-wider">
           <span>05</span>
           <span aria-hidden="true">/</span>
           <span>Initiate Communication</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2E2142] tracking-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2E2142] dark:text-[#EBE1D2] tracking-tight">
           {portfolioContent.contact.heading}
         </h1>
-        <p className="text-base text-[#5E5470] max-w-2xl leading-relaxed">
+        <p className="text-base text-[#5E5470] dark:text-[#BDB0CC] max-w-2xl leading-relaxed">
           {portfolioContent.contact.text}
         </p>
       </div>
@@ -49,23 +49,23 @@ export const ContactPage: React.FC = () => {
         {/* Left Column: Direct Contact Info & Quick Actions */}
         <div className="lg:col-span-5 space-y-6">
           {/* Email Card with Copy Button */}
-          <div className="p-6 rounded-2xl bg-[#EBE1D2]/50 border border-[#D8C9B3] space-y-4">
+          <div className="p-6 rounded-2xl bg-[#EBE1D2]/50 dark:bg-[#2A1F3D]/60 border border-[#D8C9B3] dark:border-[#3D2F57] space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-[#6B4EAE] font-semibold uppercase tracking-wider">
+              <span className="text-xs font-mono text-[#6B4EAE] dark:text-[#A78BFA] font-semibold uppercase tracking-wider">
                 Direct Email
               </span>
               <button
                 onClick={handleCopyEmail}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF6F0] hover:bg-white text-xs font-semibold text-[#2E2142] border border-[#D8C9B3] transition-colors focus-visible:outline-2 focus-visible:outline-[#6B4EAE]"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF6F0] dark:bg-[#1B1326] hover:bg-white dark:hover:bg-[#2A1F3D] text-xs font-semibold text-[#2E2142] dark:text-[#EBE1D2] border border-[#D8C9B3] dark:border-[#3D2F57] transition-colors focus-visible:outline-2 focus-visible:outline-[#6B4EAE]"
               >
                 {copied ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-700">Copied!</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-emerald-700 dark:text-emerald-300">Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-[#6B4EAE]" />
+                    <Copy className="w-3.5 h-3.5 text-[#6B4EAE] dark:text-[#A78BFA]" />
                     <span>Copy email</span>
                   </>
                 )}
@@ -74,19 +74,19 @@ export const ContactPage: React.FC = () => {
 
             <a
               href={`mailto:${portfolioContent.personal.email}`}
-              className="text-lg sm:text-xl font-bold text-[#2E2142] hover:text-[#6B4EAE] transition-colors block break-all font-mono"
+              className="text-lg sm:text-xl font-bold text-[#2E2142] dark:text-[#EBE1D2] hover:text-[#6B4EAE] dark:hover:text-[#A78BFA] transition-colors block break-all font-mono"
             >
               {portfolioContent.personal.email}
             </a>
 
-            <p className="text-xs text-[#5E5470] leading-relaxed">
+            <p className="text-xs text-[#5E5470] dark:text-[#BDB0CC] leading-relaxed">
               Feel free to reach out directly via your preferred email client or copy the address above.
             </p>
           </div>
 
           {/* Social Profiles & Details */}
-          <div className="p-6 rounded-2xl bg-[#FAF6F0] border border-[#D8C9B3] space-y-4">
-            <span className="text-xs font-mono text-[#5E5470] uppercase tracking-wider block">
+          <div className="p-6 rounded-2xl bg-[#FAF6F0] dark:bg-[#2A1F3D]/80 border border-[#D8C9B3] dark:border-[#3D2F57] space-y-4">
+            <span className="text-xs font-mono text-[#5E5470] dark:text-[#BDB0CC] uppercase tracking-wider block">
               Professional Profiles & Location
             </span>
 
@@ -95,38 +95,38 @@ export const ContactPage: React.FC = () => {
                 href={portfolioContent.personal.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-3 rounded-xl bg-[#EBE1D2]/40 hover:bg-[#EBE1D2]/80 border border-[#D8C9B3]/60 transition-colors group"
+                className="flex items-center justify-between p-3 rounded-xl bg-[#EBE1D2]/40 dark:bg-[#1B1326]/60 hover:bg-[#EBE1D2]/80 dark:hover:bg-[#1B1326] border border-[#D8C9B3]/60 dark:border-[#3D2F57] transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <Linkedin className="w-4 h-4 text-[#6B4EAE]" />
-                  <span className="font-medium text-[#2E2142]">LinkedIn Profile</span>
+                  <Linkedin className="w-4 h-4 text-[#6B4EAE] dark:text-[#A78BFA]" />
+                  <span className="font-medium text-[#2E2142] dark:text-[#EBE1D2]">LinkedIn Profile</span>
                 </div>
-                <span className="text-xs text-[#6B4EAE] group-hover:underline">Connect →</span>
+                <span className="text-xs text-[#6B4EAE] dark:text-[#A78BFA] group-hover:underline">Connect →</span>
               </a>
 
               <a
                 href={portfolioContent.personal.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-3 rounded-xl bg-[#EBE1D2]/40 hover:bg-[#EBE1D2]/80 border border-[#D8C9B3]/60 transition-colors group"
+                className="flex items-center justify-between p-3 rounded-xl bg-[#EBE1D2]/40 dark:bg-[#1B1326]/60 hover:bg-[#EBE1D2]/80 dark:hover:bg-[#1B1326] border border-[#D8C9B3]/60 dark:border-[#3D2F57] transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <Github className="w-4 h-4 text-[#2E2142]" />
-                  <span className="font-medium text-[#2E2142]">GitHub Repositories</span>
+                  <Github className="w-4 h-4 text-[#2E2142] dark:text-[#EBE1D2]" />
+                  <span className="font-medium text-[#2E2142] dark:text-[#EBE1D2]">GitHub Repositories</span>
                 </div>
-                <span className="text-xs text-[#6B4EAE] group-hover:underline">Explore →</span>
+                <span className="text-xs text-[#6B4EAE] dark:text-[#A78BFA] group-hover:underline">Explore →</span>
               </a>
 
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#FAF6F0] border border-[#D8C9B3]/60 text-[#5E5470]">
-                <MapPin className="w-4 h-4 text-[#6B4EAE] shrink-0" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#FAF6F0] dark:bg-[#1B1326]/60 border border-[#D8C9B3]/60 dark:border-[#3D2F57] text-[#5E5470] dark:text-[#BDB0CC]">
+                <MapPin className="w-4 h-4 text-[#6B4EAE] dark:text-[#A78BFA] shrink-0" />
                 <span>{portfolioContent.personal.location}</span>
               </div>
             </div>
           </div>
 
           {/* Availability note */}
-          <div className="p-5 rounded-xl bg-[#FAF6F0] border border-[#D8C9B3] text-xs text-[#5E5470] flex items-start gap-3">
-            <Shield className="w-4 h-4 text-[#6B4EAE] shrink-0 mt-0.5" />
+          <div className="p-5 rounded-xl bg-[#FAF6F0] dark:bg-[#2A1F3D]/80 border border-[#D8C9B3] dark:border-[#3D2F57] text-xs text-[#5E5470] dark:text-[#BDB0CC] flex items-start gap-3">
+            <Shield className="w-4 h-4 text-[#6B4EAE] dark:text-[#A78BFA] shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               Available for full-time cloud security engineering roles, DevSecOps infrastructure contracts, and security architecture reviews.
             </p>
@@ -137,9 +137,9 @@ export const ContactPage: React.FC = () => {
         <div className="lg:col-span-7">
           <form
             onSubmit={handleSubmit}
-            className="p-6 sm:p-8 rounded-2xl bg-[#FAF6F0] border border-[#D8C9B3] space-y-5 shadow-2xs"
+            className="p-6 sm:p-8 rounded-2xl bg-[#FAF6F0] dark:bg-[#2A1F3D]/80 border border-[#D8C9B3] dark:border-[#3D2F57] space-y-5 shadow-2xs"
           >
-            <div className="flex items-center gap-2 pb-3 border-b border-[#D8C9B3]/60 text-xs font-semibold uppercase tracking-wider text-[#6B4EAE]">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#D8C9B3]/60 dark:border-[#3D2F57] text-xs font-semibold uppercase tracking-wider text-[#6B4EAE] dark:text-[#A78BFA]">
               <MessageSquare className="w-4 h-4" />
               <span>Send a Message (Prefilled Email Client)</span>
             </div>
@@ -148,7 +148,7 @@ export const ContactPage: React.FC = () => {
               <div className="space-y-1.5">
                 <label
                   htmlFor="name"
-                  className="block text-xs font-semibold text-[#2E2142]"
+                  className="block text-xs font-semibold text-[#2E2142] dark:text-[#EBE1D2]"
                 >
                   Your Name
                 </label>
@@ -159,14 +159,14 @@ export const ContactPage: React.FC = () => {
                   placeholder="e.g. Alex Morgan"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] border border-[#D8C9B3] text-sm text-[#2E2142] placeholder-[#5E5470]/50 focus:border-[#6B4EAE] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] dark:bg-[#1B1326] border border-[#D8C9B3] dark:border-[#3D2F57] text-sm text-[#2E2142] dark:text-[#EBE1D2] placeholder-[#5E5470]/50 dark:placeholder-[#BDB0CC]/50 focus:border-[#6B4EAE] dark:focus:border-[#A78BFA] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <label
                   htmlFor="email"
-                  className="block text-xs font-semibold text-[#2E2142]"
+                  className="block text-xs font-semibold text-[#2E2142] dark:text-[#EBE1D2]"
                 >
                   Your Email
                 </label>
@@ -177,7 +177,7 @@ export const ContactPage: React.FC = () => {
                   placeholder="alex@company.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] border border-[#D8C9B3] text-sm text-[#2E2142] placeholder-[#5E5470]/50 focus:border-[#6B4EAE] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] dark:bg-[#1B1326] border border-[#D8C9B3] dark:border-[#3D2F57] text-sm text-[#2E2142] dark:text-[#EBE1D2] placeholder-[#5E5470]/50 dark:placeholder-[#BDB0CC]/50 focus:border-[#6B4EAE] dark:focus:border-[#A78BFA] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all"
                 />
               </div>
             </div>
@@ -185,7 +185,7 @@ export const ContactPage: React.FC = () => {
             <div className="space-y-1.5">
               <label
                 htmlFor="subject"
-                className="block text-xs font-semibold text-[#2E2142]"
+                className="block text-xs font-semibold text-[#2E2142] dark:text-[#EBE1D2]"
               >
                 Subject / Project Scope
               </label>
@@ -196,14 +196,14 @@ export const ContactPage: React.FC = () => {
                 placeholder="Cloud Security Review / DevSecOps Pipeline / Collaboration"
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] border border-[#D8C9B3] text-sm text-[#2E2142] placeholder-[#5E5470]/50 focus:border-[#6B4EAE] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] dark:bg-[#1B1326] border border-[#D8C9B3] dark:border-[#3D2F57] text-sm text-[#2E2142] dark:text-[#EBE1D2] placeholder-[#5E5470]/50 dark:placeholder-[#BDB0CC]/50 focus:border-[#6B4EAE] dark:focus:border-[#A78BFA] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
               <label
                 htmlFor="message"
-                className="block text-xs font-semibold text-[#2E2142]"
+                className="block text-xs font-semibold text-[#2E2142] dark:text-[#EBE1D2]"
               >
                 Message
               </label>
@@ -214,19 +214,19 @@ export const ContactPage: React.FC = () => {
                 placeholder="Describe your organization, requirements, or what you would like to collaborate on..."
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] border border-[#D8C9B3] text-sm text-[#2E2142] placeholder-[#5E5470]/50 focus:border-[#6B4EAE] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all resize-y"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] dark:bg-[#1B1326] border border-[#D8C9B3] dark:border-[#3D2F57] text-sm text-[#2E2142] dark:text-[#EBE1D2] placeholder-[#5E5470]/50 dark:placeholder-[#BDB0CC]/50 focus:border-[#6B4EAE] dark:focus:border-[#A78BFA] focus:outline-none focus:ring-1 focus:ring-[#6B4EAE] transition-all resize-y"
               />
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#6B4EAE] hover:bg-[#593E94] text-white text-sm font-semibold transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6B4EAE]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#6B4EAE] hover:bg-[#593E94] dark:bg-[#A78BFA] dark:hover:bg-[#926be6] text-white dark:text-[#1B1326] text-sm font-semibold transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6B4EAE]"
               >
                 <Send className="w-4 h-4" />
                 <span>Launch Email Client</span>
               </button>
-              <p className="mt-2 text-[11px] text-[#5E5470]">
+              <p className="mt-2 text-[11px] text-[#5E5470] dark:text-[#BDB0CC]">
                 Clicking opens your default email application prefilled with your message. No credentials or server required.
               </p>
             </div>

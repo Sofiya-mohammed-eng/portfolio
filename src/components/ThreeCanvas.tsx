@@ -3,6 +3,7 @@ import * as THREE from 'three';
 
 interface ThreeCanvasProps {
   currentPath: string;
+  isDark?: boolean;
 }
 
 // Camera and scene coordinates per route
@@ -15,10 +16,13 @@ const ROUTE_CONFIGS: Record<string, { camPos: [number, number, number]; lookAt: 
   '/contact': { camPos: [1.2, 1.4, 6.5], lookAt: [0, 0, 0], heroOpacity: 0.35 },
 };
 
-export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
+export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath, isDark = false }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const currentPathRef = useRef(currentPath);
   currentPathRef.current = currentPath;
+
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
 
   useEffect(() => {
     const container = mountRef.current;
@@ -44,7 +48,8 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
 
     // Initialize Three.js scene
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0xfaf6f0, 0.045);
+    const fogColor = new THREE.Color(isDarkRef.current ? 0x1b1326 : 0xfaf6f0);
+    scene.fog = new THREE.FogExp2(fogColor.getHex(), 0.045);
 
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
@@ -68,24 +73,25 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
     container.appendChild(renderer.domElement);
 
     // Studio Lighting Rig
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDarkRef.current ? 1.15 : 0.85);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xfff5eb, 1.4);
+    const keyLight = new THREE.DirectionalLight(0xfff5eb, isDarkRef.current ? 1.7 : 1.4);
     keyLight.position.set(5, 8, 6);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xe0d6ff, 0.9);
+    const fillLight = new THREE.DirectionalLight(0xe0d6ff, isDarkRef.current ? 1.2 : 0.9);
     fillLight.position.set(-6, -3, 4);
     scene.add(fillLight);
 
-    const rimLight = new THREE.PointLight(0x6b4eae, 1.8, 15);
+    const rimLight = new THREE.PointLight(0xa78bfa, isDarkRef.current ? 2.4 : 1.8, 15);
     rimLight.position.set(0, -4, 2);
     scene.add(rimLight);
 
-    // Palette Materials (flat shaded, tactile soft matte)
+    // Materials (flat-shaded, soft matte)
+    // In dark mode: purple #A78BFA, lilac #C9B8EA, muted beige #8A7B6A
     const matPurple = new THREE.MeshStandardMaterial({
-      color: 0x6b4eae,
+      color: isDarkRef.current ? 0xa78bfa : 0x6b4eae,
       flatShading: true,
       roughness: 0.35,
       metalness: 0.15,
@@ -103,7 +109,7 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
     });
 
     const matBeige = new THREE.MeshStandardMaterial({
-      color: 0xebe1d2,
+      color: isDarkRef.current ? 0x8a7b6a : 0xebe1d2,
       flatShading: true,
       roughness: 0.6,
       metalness: 0.05,
@@ -112,7 +118,7 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
     });
 
     const matSand = new THREE.MeshStandardMaterial({
-      color: 0xd8c9b3,
+      color: isDarkRef.current ? 0x5a4d6b : 0xd8c9b3,
       flatShading: true,
       roughness: 0.5,
       metalness: 0.1,
@@ -121,14 +127,13 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
     });
 
     const matWire = new THREE.MeshBasicMaterial({
-      color: 0x6b4eae,
+      color: isDarkRef.current ? 0xa78bfa : 0x6b4eae,
       wireframe: true,
       transparent: true,
-      opacity: 0.22,
+      opacity: isDarkRef.current ? 0.35 : 0.22,
     });
 
-    // 1. Central Hero Interactive Shield / Faceted Polyhedron
-    // Composite multi-part assembly as per threejs guidelines
+    // 1. Central Hero Interactive Polyhedron Core & Orbit Rings
     const heroGroup = new THREE.Group();
     heroGroup.position.set(2.4, 0.2, 0);
 
@@ -147,7 +152,7 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
 
     scene.add(heroGroup);
 
-    // 2. Floating Background Low-Poly Geometries (scattered with elegant parallax)
+    // 2. Floating Background Low-Poly Geometries
     interface FloatingItem {
       mesh: THREE.Object3D;
       basePos: THREE.Vector3;
@@ -227,7 +232,6 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
     // Mouse Tracking State
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     const handleMouseMove = (e: MouseEvent) => {
-      // Normalized between -1 and 1
       mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
@@ -242,7 +246,6 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
 
-      // Adjust hero position for mobile screens
       if (w < 768) {
         heroGroup.position.set(0, 1.2, -1);
         heroGroup.scale.set(0.7, 0.7, 0.7);
@@ -254,17 +257,23 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
     handleResize();
     window.addEventListener('resize', handleResize);
 
-    // Animation Loop
+    // Target Colors for smooth theme lerping
+    const targetPurple = new THREE.Color();
+    const targetLilac = new THREE.Color(0xc9b8ea);
+    const targetBeige = new THREE.Color();
+    const targetSand = new THREE.Color();
+    const targetWire = new THREE.Color();
+    const targetFog = new THREE.Color();
+
     let animId = 0;
     const clock = new THREE.Clock();
     const targetCamPos = new THREE.Vector3();
     const targetLookAt = new THREE.Vector3();
 
     const tick = () => {
-      const delta = Math.min(clock.getDelta(), 0.1);
       const elapsed = clock.getElapsedTime();
 
-      // Smooth mouse follow
+      // Mouse smoothing
       mouse.x += (mouse.targetX - mouse.x) * 0.08;
       mouse.y += (mouse.targetY - mouse.y) * 0.08;
 
@@ -272,7 +281,6 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
       const config = ROUTE_CONFIGS[currentPathRef.current] || ROUTE_CONFIGS['/'];
       targetCamPos.set(config.camPos[0], config.camPos[1], config.camPos[2]);
 
-      // Subtle mouse parallax
       if (!prefersReducedMotion) {
         targetCamPos.x += mouse.x * 0.45;
         targetCamPos.y += mouse.y * 0.35;
@@ -282,22 +290,42 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
       targetLookAt.set(config.lookAt[0], config.lookAt[1], config.lookAt[2]);
       camera.lookAt(targetLookAt);
 
+      // Smooth Theme Color Interpolation
+      const isDarkActive = isDarkRef.current;
+      targetPurple.setHex(isDarkActive ? 0xa78bfa : 0x6b4eae);
+      targetBeige.setHex(isDarkActive ? 0x8a7b6a : 0xebe1d2);
+      targetSand.setHex(isDarkActive ? 0x5a4d6b : 0xd8c9b3);
+      targetWire.setHex(isDarkActive ? 0xa78bfa : 0x6b4eae);
+      targetFog.setHex(isDarkActive ? 0x1b1326 : 0xfaf6f0);
+
+      matPurple.color.lerp(targetPurple, 0.05);
+      matLilac.color.lerp(targetLilac, 0.05);
+      matBeige.color.lerp(targetBeige, 0.05);
+      matSand.color.lerp(targetSand, 0.05);
+      matWire.color.lerp(targetWire, 0.05);
+      if (scene.fog) {
+        (scene.fog as THREE.FogExp2).color.lerp(targetFog, 0.05);
+      }
+
+      // Smooth lighting adjustment for dark mode
+      const targetAmbient = isDarkActive ? 1.15 : 0.85;
+      const targetKey = isDarkActive ? 1.7 : 1.4;
+      ambientLight.intensity = THREE.MathUtils.lerp(ambientLight.intensity, targetAmbient, 0.05);
+      keyLight.intensity = THREE.MathUtils.lerp(keyLight.intensity, targetKey, 0.05);
+
       // Hero Interactive Object Animation
       if (!prefersReducedMotion) {
-        // Continuous slow rotation
         heroCore.rotation.x += 0.006;
         heroCore.rotation.y += 0.009;
         heroCage.rotation.x -= 0.004;
         heroCage.rotation.y += 0.007;
         heroRing.rotation.z += 0.005;
 
-        // Interactive tilt towards cursor
         const targetRotX = mouse.y * 0.6;
         const targetRotY = mouse.x * 0.8;
         heroGroup.rotation.x += (targetRotX - heroGroup.rotation.x) * 0.07;
         heroGroup.rotation.y += (targetRotY - heroGroup.rotation.y) * 0.07;
 
-        // Floating background items
         for (let i = 0; i < floatingItems.length; i++) {
           const item = floatingItems[i];
           item.mesh.rotation.x += item.rotSpeed.x;
@@ -314,7 +342,7 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
       const targetOpacity = config.heroOpacity;
       matPurple.opacity = THREE.MathUtils.lerp(matPurple.opacity, targetOpacity * 0.92, 0.05);
       matLilac.opacity = THREE.MathUtils.lerp(matLilac.opacity, targetOpacity * 0.88, 0.05);
-      matWire.opacity = THREE.MathUtils.lerp(matWire.opacity, targetOpacity * 0.22, 0.05);
+      matWire.opacity = THREE.MathUtils.lerp(matWire.opacity, targetOpacity * (isDarkActive ? 0.35 : 0.22), 0.05);
 
       renderer.render(scene, camera);
       animId = requestAnimationFrame(tick);
@@ -329,7 +357,6 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ currentPath }) => {
       if (container && renderer.domElement) {
         container.removeChild(renderer.domElement);
       }
-      // Clean up geometries and materials
       heroCoreGeo.dispose();
       heroCageGeo.dispose();
       heroRingGeo.dispose();
