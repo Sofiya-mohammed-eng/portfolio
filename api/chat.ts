@@ -1,21 +1,22 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
-import { portfolioContent, Certification, CaseStudy, ToolCategory } from '../../../src/data/content';
+import { portfolioContent, Certification, CaseStudy, ToolCategory } from '../src/data/content';
 
-// Next.js App Router Server Route Handler for Vercel deployment
+// In-memory per-IP rate limiter (15 requests per minute)
 const rateLimitMap = new Map<string, number[]>();
 
-function checkRateLimit(ip: string): boolean {
+function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const windowMs = 60 * 1000;
   const maxRequests = 15;
 
   const timestamps = (rateLimitMap.get(ip) || []).filter((time) => now - time < windowMs);
   if (timestamps.length >= maxRequests) {
-    return false;
+    return true;
   }
   timestamps.push(now);
   rateLimitMap.set(ip, timestamps);
-  return true;
+  return false;
 }
 
 const SOPHIE_SYSTEM_PROMPT = `You are "Sophie", the assistant on Sofiya Mohammed Hassen's portfolio.
@@ -78,44 +79,66 @@ Skills & Tools:
 - Tool Ecosystem: ${portfolioContent.skills.tools.map((t: ToolCategory) => `${t.category}: ${t.items.join(', ')}`).join(' | ')}
 `;
 
-export async function POST(req: Request) {
-  try {
-    const forwarded = req.headers.get('x-forwarded-for');
-    const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
-    if (!checkRateLimit(ip)) {
-      return Response.json(
-        { reply: "You've sent several messages quickly! Please wait a moment before asking Sophie another question." },
-        { status: 429 }
-      );
-    }
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Only allow POST
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return res.status(405).json({ error: 'method_not_allowed', message: 'Only POST requests are accepted.' });
+  }
 
-    const body = await req.json();
-    const { messages, message } = body;
+  // 1. Per-IP Rate Limiting (15 req/min)
+  const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({
+      error: 'rate_limited',
+      message: 'Rate limit exceeded. Maximum 15 requests per minute allowed.',
+    });
+  }
 
-    // Security validation
-    if (Array.isArray(messages) && messages.length > 20) {
-      return Response.json({ error: 'Exceeded maximum message context length' }, { status: 400 });
-    }
+  // 2. Validate input
+  const { messages, message } = req.body || {};
+  let userMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
 
-    const userPrompt = (message || (Array.isArray(messages) ? messages[messages.length - 1]?.content : ''))?.slice(0, 500);
-
-    if (!userPrompt || typeof userPrompt !== 'string' || !userPrompt.trim()) {
-      return Response.json({ error: 'Valid message required' }, { status: 400 });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    const isKeyConfigured = apiKey &&
-      apiKey !== 'your_key_here' &&
-      apiKey !== 'MY_GEMINI_API_KEY';
-
-    if (!isKeyConfigured) {
-      return Response.json({
-        reply: `Hi! I'm Sophie, Sofiya's portfolio assistant. Sofiya is a DevSecOps & Cloud Security Engineer based in Addis Ababa, Ethiopia. She specializes in secure infrastructure, multi-cloud Terraform, 6-stage CI/CD pipelines, and AI security. For direct inquiries, feel free to email her at ${portfolioContent.personal.email}!`,
+  if (Array.isArray(messages)) {
+    if (messages.length > 20) {
+      return res.status(400).json({
+        error: 'bad_request',
+        message: 'Exceeded maximum message history limit of 20 messages.',
       });
     }
+    userMessages = messages;
+  } else if (typeof message === 'string' && message.trim()) {
+    userMessages = [{ role: 'user', content: message }];
+  } else {
+    return res.status(400).json({
+      error: 'bad_request',
+      message: 'A valid message string or messages array is required.',
+    });
+  }
 
+  // Validate individual message lengths (max 500 characters)
+  for (const m of userMessages) {
+    if (!m.content || typeof m.content !== 'string' || m.content.length > 500) {
+      return res.status(400).json({
+        error: 'bad_request',
+        message: 'Each message must be a string with a maximum of 500 characters.',
+      });
+    }
+  }
+
+  // 3. Verify API Key on server
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'your_key_here' || apiKey === 'MY_GEMINI_API_KEY') {
+    return res.status(500).json({
+      error: 'missing_api_key',
+      message: 'GEMINI_API_KEY is not configured on the server. Please configure it in Vercel Project Settings.',
+    });
+  }
+
+  // 4. Initialize GoogleGenAI SDK on server only
+  try {
     const ai = new GoogleGenAI({
-      apiKey: apiKey,
+      apiKey,
       httpOptions: {
         headers: {
           'User-Agent': 'aistudio-build',
@@ -123,37 +146,29 @@ export async function POST(req: Request) {
       },
     });
 
-    const contents: any[] = [];
-    if (Array.isArray(messages) && messages.length > 1) {
-      for (const m of messages.slice(-10)) {
-        if (m.content && typeof m.content === 'string') {
-          contents.push({
-            role: m.role === 'user' ? 'user' : 'model',
-            parts: [{ text: String(m.content).slice(0, 500) }],
-          });
-        }
-      }
-    } else {
-      contents.push({
-        role: 'user',
-        parts: [{ text: userPrompt }],
-      });
-    }
+    const selectedModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+    // Format contents for SDK
+    const contents = userMessages.slice(-10).map((m) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content.slice(0, 500) }],
+    }));
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: contents,
+      model: selectedModel,
+      contents,
       config: {
         systemInstruction: SOPHIE_SYSTEM_PROMPT,
       },
     });
 
-    const reply = response.text || "I don't have that detail right now. Feel free to reach out to Sofiya directly at sophiamahammed67@gmail.com!";
-    return Response.json({ reply });
+    const reply = response.text || "I don't have that detail right now. Feel free to email Sofiya directly at sophiamahammed67@gmail.com!";
+    return res.status(200).json({ reply });
   } catch {
     // Never log message contents or API keys
-    return Response.json({
-      reply: "I'm having a brief issue retrieving that information. Please email Sofiya directly at sophiamahammed67@gmail.com, or check her projects on the /projects page!",
+    return res.status(502).json({
+      error: 'model_error',
+      message: 'Failed to generate response from model. Please try again or reach out to sophiamahammed67@gmail.com.',
     });
   }
 }

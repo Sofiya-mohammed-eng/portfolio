@@ -125,13 +125,27 @@ export const Chatbot: React.FC = () => {
         }),
       });
 
+      const data = await response.json().catch(() => null);
+
       if (!response.ok) {
-        throw new Error(`Server returned status ${response.status}`);
+        const errorText =
+          data?.message ||
+          data?.reply ||
+          `I'm having trouble connecting to the server (${response.status}). For immediate inquiries, please email Sofiya directly at ${portfolioContent.personal.email}.`;
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `msg-${Date.now() + 1}`,
+            role: 'assistant',
+            content: errorText,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          },
+        ]);
+        return;
       }
 
-      const data = await response.json();
       const replyText =
-        data.reply ||
+        data?.reply ||
         "I'm here to answer questions about Sofiya's DevSecOps projects, cloud security, and background. Feel free to ask!";
 
       setMessages((prev) => [

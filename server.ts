@@ -163,8 +163,10 @@ app.post('/api/chat', async (req, res) => {
       });
     }
 
+    const selectedModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: selectedModel,
       contents: contents,
       config: {
         systemInstruction: SOPHIE_SYSTEM_PROMPT,
@@ -172,12 +174,12 @@ app.post('/api/chat', async (req, res) => {
     });
 
     const reply = response.text || "I don't have that detail right now. Feel free to reach out to Sofiya directly at sophiamahammed67@gmail.com!";
-    return res.json({ reply });
-  } catch (error: any) {
+    return res.status(200).json({ reply });
+  } catch {
     // Never log message contents or key
-    console.error('API request failed');
-    return res.status(200).json({
-      reply: "I'm having a brief issue retrieving that information. Please email Sofiya directly at sophiamahammed67@gmail.com, or check her projects on the /projects page!",
+    return res.status(502).json({
+      error: 'model_error',
+      message: 'Failed to generate response from model. Please try again or reach out to sophiamahammed67@gmail.com.',
     });
   }
 });
