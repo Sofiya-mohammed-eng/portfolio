@@ -128,10 +128,23 @@ export const Chatbot: React.FC = () => {
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        const errorText =
-          data?.message ||
-          data?.reply ||
-          `I'm having trouble connecting to the server (${response.status}). For immediate inquiries, please email Sofiya directly at ${portfolioContent.personal.email}.`;
+        let errorText = '';
+        const errorCode = data?.error;
+
+        if (response.status === 400 || errorCode === 'bad_request') {
+          errorText = data?.message || 'Please keep your message concise (under 500 characters) or start a new conversation.';
+        } else if (response.status === 429 || errorCode === 'rate_limited') {
+          errorText = "I'm receiving too many messages right now. Please wait a minute before trying again.";
+        } else if (response.status === 500 || errorCode === 'missing_api_key') {
+          errorText = `The AI service is currently being configured on the server. Please reach out directly to Sofiya at ${portfolioContent.personal.email} in the meantime!`;
+        } else if (response.status === 502 || errorCode === 'model_error') {
+          errorText = `I ran into a temporary issue with the AI service. Please try asking again in a moment, or email Sofiya directly at ${portfolioContent.personal.email}.`;
+        } else if (data?.message) {
+          errorText = data.message;
+        } else {
+          errorText = `I'm having trouble connecting to the server (${response.status}). For immediate inquiries, please email Sofiya directly at ${portfolioContent.personal.email}.`;
+        }
+
         setMessages((prev) => [
           ...prev,
           {
@@ -158,7 +171,7 @@ export const Chatbot: React.FC = () => {
         },
       ]);
     } catch {
-      // Graceful error message without crashing
+      // Graceful error message without crashing (network or unknown error)
       setMessages((prev) => [
         ...prev,
         {

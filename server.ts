@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
-import { portfolioContent } from './src/data/content.ts';
+import { portfolioContent } from './api/_content.js';
 
 dotenv.config();
 
@@ -117,21 +117,28 @@ app.post('/api/chat', async (req, res) => {
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
     if (!checkRateLimit(clientIp)) {
       return res.status(429).json({
-        reply: "You've sent several messages quickly! Please wait a moment before asking Sophie another question.",
+        error: 'rate_limited',
+        message: 'Rate limit exceeded. Maximum 15 requests per minute allowed.',
       });
     }
 
-    const { messages, message } = req.body;
+    const { messages, message } = req.body || {};
 
     // 2. Security validation: Validate and cap input (500 chars per message, max 20 messages)
     if (Array.isArray(messages) && messages.length > 20) {
-      return res.status(400).json({ error: 'Exceeded maximum message context length' });
+      return res.status(400).json({
+        error: 'bad_request',
+        message: 'Exceeded maximum message history limit of 20 messages.',
+      });
     }
 
     const userPrompt = (message || (Array.isArray(messages) ? messages[messages.length - 1]?.content : ''))?.slice(0, 500);
 
     if (!userPrompt || typeof userPrompt !== 'string' || !userPrompt.trim()) {
-      return res.status(400).json({ error: 'Valid message required' });
+      return res.status(400).json({
+        error: 'bad_request',
+        message: 'A valid message string or messages array is required.',
+      });
     }
 
     // Friendly response if API key is not yet configured or contains placeholder

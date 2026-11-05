@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
-import { portfolioContent, Certification, CaseStudy, ToolCategory } from '../src/data/content';
+import { portfolioContent, Certification, CaseStudy, ToolCategory } from './_content.js';
 
 // In-memory per-IP rate limiter (15 requests per minute)
 const rateLimitMap = new Map<string, number[]>();

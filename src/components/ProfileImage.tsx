@@ -32,7 +32,7 @@ export const ProfileImage: React.FC<ProfileImageProps> = ({
   };
 
   // Dimensions matching the target reference screenshot:
-  // lg: ~440px on desktop (scaling smoothly down to 300px on mobile)
+  // lg: ~440px on desktop (scaling down smoothly on mobile)
   // md: ~320px for the About page
   // sm: compact avatar
   const sizeClasses = {
@@ -46,20 +46,26 @@ export const ProfileImage: React.FC<ProfileImageProps> = ({
       {/* Soft ambient purple glow behind photo */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 rounded-full bg-[#6B4EAE]/25 dark:bg-[#A78BFA]/30 blur-2xl transform scale-105 pointer-events-none"
+        className="absolute inset-0 rounded-full bg-[#6B4EAE]/25 dark:bg-[#A78BFA]/30 blur-2xl pointer-events-none"
       />
 
       {/* Perfect circle frame (aspect-ratio: 1/1) with 6px border ring */}
       <div
         className={`relative ${sizeClasses[size]} aspect-square rounded-full border-[6px] border-white dark:border-[#3D2F57] shadow-[0_12px_40px_rgba(46,33,66,0.14)] dark:shadow-[0_12px_45px_rgba(0,0,0,0.5)] overflow-hidden bg-[#EBE1D2] dark:bg-[#2A1F3D] transition-colors duration-300 z-10`}
+        style={{ aspectRatio: '1 / 1' }}
       >
         {!hasError ? (
           <img
             src={sources[sourceIndex]}
             alt="Portrait of Sofiya Mohammed Hassen"
             onError={handleImageError}
-            className="w-full h-full object-cover rounded-full select-none"
-            style={{ objectPosition: 'center 25%' }}
+            className="w-full h-full rounded-full select-none"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center center',
+            }}
             loading="eager"
           />
         ) : (
