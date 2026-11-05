@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
-import { portfolioContent } from './api/_content.js';
+import { portfolioContent } from './src/data/content.ts';
 
 dotenv.config();
 
