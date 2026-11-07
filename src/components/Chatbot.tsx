@@ -110,18 +110,20 @@ export const Chatbot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Send the last ~10 messages for context
-      const contextMessages = newMessages.slice(-10).map((m) => ({
-        role: m.role,
-        content: m.content.slice(0, 500),
-      }));
+      // Full conversation so far (up to 20 messages), ensuring roles are "user" | "assistant"
+      const payloadMessages = newMessages
+        .filter((m) => m.role === 'user' || m.role === 'assistant')
+        .slice(-20)
+        .map((m) => ({
+          role: m.role,
+          content: m.content.slice(0, 500),
+        }));
 
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: text,
-          messages: contextMessages,
+          messages: payloadMessages,
         }),
       });
 
@@ -131,10 +133,10 @@ export const Chatbot: React.FC = () => {
         let errorText = '';
         const errorCode = data?.error;
 
-        if (response.status === 400 || errorCode === 'bad_request') {
-          errorText = data?.message || 'Please keep your message concise (under 500 characters) or start a new conversation.';
-        } else if (response.status === 429 || errorCode === 'rate_limited') {
-          errorText = "I'm receiving too many messages right now. Please wait a minute before trying again.";
+        if (response.status === 429 || errorCode === 'rate_limited') {
+          errorText = 'Too many questions! Please wait a minute before asking Sophie again.';
+        } else if (response.status === 400 || errorCode === 'bad_request') {
+          errorText = 'Please keep your message concise (under 500 characters) or reset the conversation.';
         } else if (response.status === 500 || errorCode === 'missing_api_key') {
           errorText = `The AI service is currently being configured on the server. Please reach out directly to Sofiya at ${portfolioContent.personal.email} in the meantime!`;
         } else if (response.status === 502 || errorCode === 'model_error') {
